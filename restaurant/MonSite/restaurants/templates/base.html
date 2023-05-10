@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommandations de restaurants</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #fceed1;
+            font-family: 'Roboto', sans-serif;
+        }
+    </style>
+    {% csrf_token %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get all star rating containers
+            const starContainers = document.querySelectorAll(".star-rating");
+          
+            // Iterate over each star container
+            starContainers.forEach((container) => {
+              // Get the stars inside the container
+              const stars = container.querySelectorAll(".star");
+          
+              // Set the initial state based on the restaurant's rating
+              const restaurantRating = Math.round({{ restaurant.rating }});
+              for (let i = 0; i < restaurantRating; i++) {
+                stars[i].classList.add("active");
+              }
+          
+              // Attach click event listeners to each star
+              stars.forEach((star) => {
+                star.addEventListener("click", async function() {
+                  // Get the rating from the clicked star
+                  const rating = parseInt(star.dataset.rating);
+          
+                  // Update the active state of the stars
+                  stars.forEach((s, index) => {
+                    if (index < rating) {
+                      s.classList.add("active");
+                    } else {
+                      s.classList.remove("active");
+                    }
+                  });
+          
+                  // Send the rating to the server
+                  const restaurantId = container.dataset.restaurantId;
+                  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                  const response = await fetch("/submit_rating/", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "X-CSRFToken": csrfToken,
+                    },
+                    body: JSON.stringify({
+                      restaurant_id: restaurantId,
+                      rating: rating,
+                    }),
+                  });
+          
+                  // Update the displayed rating and number of ratings on the page
+                  if (response.status === 200) {
+                    const updatedData = await response.json();
+                    const ratingElement = document.querySelector(`#restaurant-${restaurantId}-rating`);
+                    const numOfRatingsElement = document.querySelector(`#restaurant-${restaurantId}-numOfRatings`);
+          
+                    ratingElement.textContent = updatedData.new_avg_rating.toFixed(1);
+                    numOfRatingsElement.textContent = updatedData.new_num_of_ratings;
+                  }
+                });
+              });
+            });
+          });
+          
+    </script>
+
+</head>
+
+<body>
+    <header>
+        <nav>
+            <!-- Ajoutez des liens de navigation ici, si nécessaire -->
+        </nav>
+    </header>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    <footer>
+        <!-- Ajoutez un pied de page ici, si nécessaire -->
+    </footer>
+</body>
+</html>

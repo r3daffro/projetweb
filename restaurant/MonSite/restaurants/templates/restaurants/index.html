@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load star_filter %}
+{% block content %}
+<style>
+.form-wrapper {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.form-group {
+}
+.card-title {
+  color: gray;
+  display: flex;
+  justify-content: center;
+  font-size: 30px;
+  background-color:#ffa8B6;
+}
+.card h-100{
+    color :#9df9ef;
+}
+.card-body text-center {
+  color: #86B049
+}
+h1{
+  display: flex;
+  justify-content: center;
+  font-size: 60px;
+  color : #3E363F;
+}
+.card-body{
+    background-color: #a28089; /* Green */
+
+}
+button {
+    display: flex;
+    justify-content: center;
+    background-color: #73A580; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 8px;
+    margin-right: 1rem;
+    flex-wrap: wrap;
+  }
+  .centragebutton{
+      
+    display: flex;
+    justify-content: center;
+  }
+  .star-rating {
+    display: inline-block;
+    font-size: 24px;
+  }
+  
+  .star {
+    cursor: pointer;
+    color: #ccc;
+  }
+  
+  .star-rating .star.active {
+    color: #f5b301;
+  }
+</style>
+
+    <div class="container">
+        <h1 class="text-center my-4"><strong>Top restaurants</strong></h1>
+        <form method="get" action="" class="text-center mb-4">
+            <div class="form-wrapper">
+                <div class="form-item">
+                    {{ form.as_p }}
+                </div>
+                <div class="row">
+                    <div class="col">
+                        {{ form.sort_by.label_tag }}
+                    </div>
+                    <div class="col">
+                        {{ form.search.label_tag }}
+                    </div>
+                </div>
+        
+            </div>
+            <p class="centragebutton"><button type="submit" class="" width="10" height="100">Search</button></p>
+        </form>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for restaurant in scraped_restaurants %}
+                <div class="col">
+                    <div class="card h-100">
+                        <h5 class="card-title">{{ restaurant.restaurantname }}</h5>
+                        <img src="{{ restaurant.img }}" alt="{{ restaurant.restaurantname }}" class="card-img-top">
+                        <div class="card-body text-center">
+                            <p class="card-text">
+                                {{ restaurant.location }} - {{ restaurant.type }}<br>
+                                Rating: {{ restaurant.rating }} {% with restaurant.rating|rating_to_stars as stars %}{{ stars|safe }}{% endwith %}
+                                <div class="star-rating" data-restaurant-id="{{ restaurant.id }}">
+                                    <span class="star" data-rating="1">★</span>
+                                    <span class="star" data-rating="2">★</span>
+                                    <span class="star" data-rating="3">★</span>
+                                    <span class="star" data-rating="4">★</span>
+                                    <span class="star" data-rating="5">★</span>
+                                    <span class="star" data-rating="6">★</span>
+                                    <span class="star" data-rating="7">★</span>
+                                    <span class="star" data-rating="8">★</span>
+                                    <span class="star" data-rating="9">★</span>
+                                    <span class="star" data-rating="10">★</span>
+                                    <!-- Ajoutez d'autres étoiles si vous souhaitez une notation sur 10 -->
+                                </div>
+                                <br>
+                                Comment: {{ restaurant.comment }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+            {% empty %}
+                <div class="col">
+                    <p class="text-center">No restaurants found.</p>
+                </div>
+            {% endfor %}
+            
+        </div>
+    </div>
+    
+    <p class="centragebutton"><button><a href="/logout">logout</a></button></p>
+{% endblock %}
